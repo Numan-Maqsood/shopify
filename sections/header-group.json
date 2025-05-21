@@ -35,7 +35,7 @@
         "enable_country_selector": true,
         "enable_language_selector": true,
         "enable_customer_avatar": true,
-        "margin_bottom": 0,
+        "margin_bottom": 0, 
         "padding_top": 20,
         "padding_bottom": 20
       }
