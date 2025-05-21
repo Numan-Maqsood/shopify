@@ -1,0 +1,79 @@
+<style>
+  .bannersection {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 100px 20px;
+    color: #fff;
+    text-align: center;
+  }
+
+  .bannersection h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .bannersection p {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .bannersection .description {
+    font-size: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+
+<section
+  class="bannersection"
+  style="background-image: url({{ section.settings.banner | image_url }});"
+>
+  {% if section.settings.heading != blank %}
+    <h1>{{ section.settings.heading }}</h1>
+  {% endif %}
+
+  {% if section.settings.paragraph != blank %}
+    <p>{{ section.settings.paragraph }}</p>
+  {% endif %}
+
+  {% if section.settings.description != blank %}
+    <div class="description">{{ section.settings.description }}</div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Custom Banner Section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "banner",
+      "label": "Background Image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Welcome to Our Store"
+    },
+    {
+      "type": "text",
+      "id": "paragraph",
+      "label": "Paragraph",
+      "default": "Find the perfect gift for your loved ones."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "We offer a wide range of personalized gifts perfect for any occasion."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Banner"
+    }
+  ]
+}
+{% endschema %}
