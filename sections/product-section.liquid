@@ -97,14 +97,13 @@
       <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
-      <!-- Hidden Popup Content -->
       <div class="popup-content-template" style="display: none;">
         <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
         <div class="popup-title">{{ product.title }}</div>
         <a class="popup-button" href="{{ product.url }}">Shop Now</a>
         {% if product.variants.size > 1 %}
           <label for="variant-select">Select Size:</label>
-          <select class="variant-select">
+          <select class="variant-select" name="variant-select">
             {% for variant in product.variants %}
               <option>{{ variant.title }}</option>
             {% endfor %}
@@ -125,20 +124,21 @@
       card.querySelector('.plus-icon').addEventListener('click', function () {
         const template = card.querySelector('.popup-content-template');
         if (template) {
-          popupContentContainer.querySelector('#popupImage').src = template.querySelector('img').src;
-          popupContentContainer.querySelector('#popupTitle').textContent =
-            template.querySelector('.popup-title').textContent;
-          popupContentContainer.querySelector('#popupLink').href = template.querySelector('.popup-button').href;
+          // Pehle popupContent ke andar existing cloned content hata do (close button ke alawa)
+          Array.from(popupContentContainer.children).forEach((child) => {
+            if (!child.classList.contains('popup-close')) {
+              popupContentContainer.removeChild(child);
+            }
+          });
 
-          const variantSelect = template.querySelector('.variant-select');
-          const variantContainer = document.getElementById('popupVariants');
+          // Template ko clone karo (deep clone)
+          const clone = template.cloneNode(true);
+          clone.style.display = 'block'; // hidden ko visible bana do
 
-          if (variantSelect) {
-            variantContainer.innerHTML = variantSelect.outerHTML;
-          } else {
-            variantContainer.innerHTML = '';
-          }
+          // Clone ko popupContentContainer me append karo
+          popupContentContainer.appendChild(clone);
 
+          // Popup dikhao
           overlay.style.display = 'flex';
         }
       });
@@ -146,11 +146,23 @@
 
     closeBtn.addEventListener('click', function () {
       overlay.style.display = 'none';
+
+      // Popup content clear karo close karte waqt
+      Array.from(popupContentContainer.children).forEach((child) => {
+        if (!child.classList.contains('popup-close')) {
+          popupContentContainer.removeChild(child);
+        }
+      });
     });
 
     overlay.addEventListener('click', function (e) {
       if (e.target === overlay) {
         overlay.style.display = 'none';
+        Array.from(popupContentContainer.children).forEach((child) => {
+          if (!child.classList.contains('popup-close')) {
+            popupContentContainer.removeChild(child);
+          }
+        });
       }
     });
   });
