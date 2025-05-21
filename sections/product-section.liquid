@@ -61,6 +61,8 @@
 
   .popup-content img {
     width: 100%;
+    height: 300px;
+    object-fit: cover;
     margin-bottom: 15px;
   }
 
@@ -92,7 +94,7 @@
 <div class="product-grid">
   {% for product in collections.all.products %}
     <div class="product-card">
-      <img width="" height="" src="{{ product.featured_image | image_url: 'medium' }}" alt="{{ product.title }}">
+      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon" data-handle="{{ product.handle }}">+</div>
     </div>
   {% endfor %}
