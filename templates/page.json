@@ -6,11 +6,9 @@
         "padding_top": 28,
         "padding_bottom": 28
       }
-    },
-
-    "custom-button": {
-      "type": "custom-button"
     }
   },
-  "order": ["main", "custom-button"]
+  "order": [
+    "main"
+  ]
 }
