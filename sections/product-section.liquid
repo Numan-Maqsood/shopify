@@ -131,24 +131,72 @@
             return response.json();
           })
           .then(function (product) {
+            // Basic info
             popupImage.src = product.images[0];
             popupTitle.textContent = product.title;
             popupLink.href = product.url;
 
-            let variantHTML = '<label for="variant-select">Select Variant:</label>';
-            variantHTML += '<select id="variant-select">';
+            // Determine color & size option indexes
+            let colorIndex = product.options.findIndex(opt => opt.name.toLowerCase() === 'color');
+            let sizeIndex = product.options.findIndex(opt => opt.name.toLowerCase() === 'size');
+
+            let colorOptions = new Set();
+            let sizeOptions = new Set();
+
             product.variants.forEach(function (variant) {
-              variantHTML += '<option>' + variant.title + '</option>';
+              if (colorIndex >= 0) {
+                colorOptions.add(variant.options[colorIndex]);
+              }
+              if (sizeIndex >= 0) {
+                sizeOptions.add(variant.options[sizeIndex]);
+              }
             });
-            variantHTML += '</select>';
 
-            popupVariants.innerHTML = variantHTML;
+            // Color HTML
+            let colorHTML = '';
+            if (colorOptions.size > 0) {
+              colorHTML += '<div><strong>Select Color:</strong>';
+              colorHTML += '<div style="display:flex;gap:10px;margin-top:5px;margin-bottom:10px;">';
 
+              colorOptions.forEach(function (color) {
+                const safeColor = color.toLowerCase();
+                colorHTML += `
+                  <div title="${color}" style="
+                    width:30px;
+                    height:30px;
+                    border:2px solid ${safeColor};
+                    background:${safeColor};
+                    border-radius:50%;
+                    cursor:pointer;
+                  "></div>
+                `;
+              });
+
+              colorHTML += '</div></div>';
+            }
+
+            // Size HTML
+            let sizeHTML = '';
+            if (sizeOptions.size > 0) {
+              sizeHTML += '<label for="variant-select">Select Size:</label>';
+              sizeHTML += '<select id="variant-select" style="width:100%;padding:6px;margin-top:5px;">';
+              sizeOptions.forEach(function (size) {
+                sizeHTML += `<option>${size}</option>`;
+              });
+              sizeHTML += '</select>';
+            }
+
+            // Inject into popup
+            popupVariants.innerHTML = colorHTML + sizeHTML;
             overlay.style.display = "flex";
+          })
+          .catch(function (error) {
+            console.error("Product fetch error:", error);
           });
       });
     });
 
+    // Close popup
     closeBtn.addEventListener("click", function () {
       overlay.style.display = "none";
     });
@@ -160,6 +208,7 @@
     });
   });
 </script>
+
 
 {% schema %}
 {
