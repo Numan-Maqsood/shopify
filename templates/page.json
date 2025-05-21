@@ -7,16 +7,13 @@
         "padding_bottom": 28
       }
     },
-    "header" : {
-"type" : "header"
-    },
+ 
      "custom-button": {
       "type": "custom-button"
     }
   },
   "order": [
     "main",
-    "header",
     "custom-button"
     
   ]
