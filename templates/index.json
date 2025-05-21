@@ -18,9 +18,15 @@
         "paragraph": "Find the perfect gift for your loved ones.",
         "description": "We offer a wide range of personalized gifts perfect for any occasion."
       }
+    },
+    "product_section_xAUNV9": {
+      "type": "product-section",
+      "name": "Product Grid",
+      "settings": {}
     }
   },
   "order": [
-    "banner_bAM8BM"
+    "banner_bAM8BM",
+    "product_section_xAUNV9"
   ]
 }
