@@ -93,80 +93,122 @@
 
 <div class="product-grid">
   {% for product in collections.all.products %}
-    <div class="product-card" data-product-id="{{ product.id }}">
+    <div class="product-card">
       <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-      <div class="plus-icon">+</div>
-
-      <div class="popup-content-template" style="display: none;">
-        <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-        <div class="popup-title">{{ product.title }}</div>
-        <a class="popup-button" href="{{ product.url }}">Shop Now</a>
-        {% if product.variants.size > 1 %}
-          <label for="variant-select">Select Size:</label>
-          <select class="variant-select" name="variant-select">
-            {% for variant in product.variants %}
-              <option>{{ variant.title }}</option>
-            {% endfor %}
-          </select>
-        {% endif %}
-      </div>
+      <div class="plus-icon" data-handle="{{ product.handle }}">+</div>
     </div>
   {% endfor %}
 </div>
 
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" id="popupClose">&times;</span>
+    <img id="popupImage" src="" alt="">
+    <div class="popup-title" id="popupTitle"></div>
+    <div id="popupVariants"></div>
+    <a id="popupLink" class="popup-button" href="#">Shop Now</a>
+  </div>
+</div>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const overlay = document.getElementById('popupOverlay');
-    const closeBtn = document.getElementById('popupClose');
-    const popupContentContainer = document.getElementById('popupContent');
+  document.addEventListener("DOMContentLoaded", function () {
+    const overlay = document.getElementById("popupOverlay");
+    const closeBtn = document.getElementById("popupClose");
+    const popupImage = document.getElementById("popupImage");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupVariants = document.getElementById("popupVariants");
+    const popupLink = document.getElementById("popupLink");
 
-    document.querySelectorAll('.product-card').forEach((card) => {
-      card.querySelector('.plus-icon').addEventListener('click', function () {
-        const template = card.querySelector('.popup-content-template');
-        if (template) {
-          // Pehle popupContent ke andar existing cloned content hata do (close button ke alawa)
-          Array.from(popupContentContainer.children).forEach((child) => {
-            if (!child.classList.contains('popup-close')) {
-              popupContentContainer.removeChild(child);
+    const plusIcons = document.querySelectorAll(".plus-icon");
+
+    plusIcons.forEach(function (icon) {
+      icon.addEventListener("click", function () {
+        const handle = icon.getAttribute("data-handle");
+
+        fetch(/products/${handle}.js)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (product) {
+            // Basic info
+            popupImage.src = product.images[0];
+            popupTitle.textContent = product.title;
+            popupLink.href = product.url;
+
+            // Determine color & size option indexes
+            let colorIndex = product.options.findIndex(opt => opt.name.toLowerCase() === 'color');
+            let sizeIndex = product.options.findIndex(opt => opt.name.toLowerCase() === 'size');
+
+            let colorOptions = new Set();
+            let sizeOptions = new Set();
+
+            product.variants.forEach(function (variant) {
+              if (colorIndex >= 0) {
+                colorOptions.add(variant.options[colorIndex]);
+              }
+              if (sizeIndex >= 0) {
+                sizeOptions.add(variant.options[sizeIndex]);
+              }
+            });
+
+            // Color HTML
+            let colorHTML = '';
+            if (colorOptions.size > 0) {
+              colorHTML += '<div><strong>Select Color:</strong>';
+              colorHTML += '<div style="display:flex;gap:10px;margin-top:5px;margin-bottom:10px;">';
+
+              colorOptions.forEach(function (color) {
+                const safeColor = color.toLowerCase();
+                colorHTML += 
+                  <div title="${color}" style="
+                    width:30px;
+                    height:30px;
+                    border:2px solid ${safeColor};
+                    background:${safeColor};
+                    border-radius:50%;
+                    cursor:pointer;
+                  "></div>
+                ;
+              });
+
+              colorHTML += '</div></div>';
             }
+
+            // Size HTML
+            let sizeHTML = '';
+            if (sizeOptions.size > 0) {
+              sizeHTML += '<label for="variant-select">Select Size:</label>';
+              sizeHTML += '<select id="variant-select" style="width:100%;padding:6px;margin-top:5px;">';
+              sizeOptions.forEach(function (size) {
+                sizeHTML += <option>${size}</option>;
+              });
+              sizeHTML += '</select>';
+            }
+
+            // Inject into popup
+            popupVariants.innerHTML = colorHTML + sizeHTML;
+            overlay.style.display = "flex";
+          })
+          .catch(function (error) {
+            console.error("Product fetch error:", error);
           });
-
-          // Template ko clone karo (deep clone)
-          const clone = template.cloneNode(true);
-          clone.style.display = 'block'; // hidden ko visible bana do
-
-          // Clone ko popupContentContainer me append karo
-          popupContentContainer.appendChild(clone);
-
-          // Popup dikhao
-          overlay.style.display = 'flex';
-        }
       });
     });
 
-    closeBtn.addEventListener('click', function () {
-      overlay.style.display = 'none';
-
-      // Popup content clear karo close karte waqt
-      Array.from(popupContentContainer.children).forEach((child) => {
-        if (!child.classList.contains('popup-close')) {
-          popupContentContainer.removeChild(child);
-        }
-      });
+    // Close popup
+    closeBtn.addEventListener("click", function () {
+      overlay.style.display = "none";
     });
 
-    overlay.addEventListener('click', function (e) {
+    overlay.addEventListener("click", function (e) {
       if (e.target === overlay) {
-        overlay.style.display = 'none';
-        Array.from(popupContentContainer.children).forEach((child) => {
-          if (!child.classList.contains('popup-close')) {
-            popupContentContainer.removeChild(child);
-          }
-        });
+        overlay.style.display = "none";
       }
     });
   });
 </script>
+
 
 {% schema %}
 {
