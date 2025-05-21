@@ -1,9 +1,15 @@
 {
   "name": "t:sections.header.name",
   "type": "header",
-  "sections": {
+"sections": {
     "custom-header": {
-      "type": "custom-header"
+      "type": "custom-header",
+      "settings": {
+        "logo": "shopify:\/\/shop_images\/your-logo.png",
+        "tagline": "Find The Ideal gifts for your loved Ones",
+        "button_text": "CHOOSE GIFT",
+        "button_link": "#"
+      }
     }
   },
   "order": ["custom-header"]
