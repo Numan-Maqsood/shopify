@@ -93,129 +93,68 @@
 
 <div class="product-grid">
   {% for product in collections.all.products %}
-    <div class="product-card">
+    <div class="product-card" data-product-id="{{ product.id }}">
       <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-      <div class="plus-icon" data-handle="{{ product.handle }}">+</div>
+      <div class="plus-icon">+</div>
+
+      <!-- Hidden Popup Content -->
+      <div class="popup-content-template" style="display: none;">
+        <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+        <div class="popup-title">{{ product.title }}</div>
+        <a class="popup-button" href="{{ product.url }}">Shop Now</a>
+        {% if product.variants.size > 1 %}
+          <label for="variant-select">Select Size:</label>
+          <select class="variant-select">
+            {% for variant in product.variants %}
+              <option>{{ variant.title }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
+      </div>
     </div>
   {% endfor %}
 </div>
 
-<!-- Popup -->
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup-content" id="popupContent">
-    <span class="popup-close" id="popupClose">&times;</span>
-    <img id="popupImage" src="" alt="">
-    <div class="popup-title" id="popupTitle"></div>
-    <div id="popupVariants"></div>
-    <a id="popupLink" class="popup-button" href="#">Shop Now</a>
-  </div>
-</div>
-
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const overlay = document.getElementById("popupOverlay");
-    const closeBtn = document.getElementById("popupClose");
-    const popupImage = document.getElementById("popupImage");
-    const popupTitle = document.getElementById("popupTitle");
-    const popupVariants = document.getElementById("popupVariants");
-    const popupLink = document.getElementById("popupLink");
+  document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('popupOverlay');
+    const closeBtn = document.getElementById('popupClose');
+    const popupContentContainer = document.getElementById('popupContent');
 
-    const plusIcons = document.querySelectorAll(".plus-icon");
+    document.querySelectorAll('.product-card').forEach((card) => {
+      card.querySelector('.plus-icon').addEventListener('click', function () {
+        const template = card.querySelector('.popup-content-template');
+        if (template) {
+          popupContentContainer.querySelector('#popupImage').src = template.querySelector('img').src;
+          popupContentContainer.querySelector('#popupTitle').textContent =
+            template.querySelector('.popup-title').textContent;
+          popupContentContainer.querySelector('#popupLink').href = template.querySelector('.popup-button').href;
 
-    plusIcons.forEach(function (icon) {
-      icon.addEventListener("click", function () {
-        const handle = icon.getAttribute("data-handle");
+          const variantSelect = template.querySelector('.variant-select');
+          const variantContainer = document.getElementById('popupVariants');
 
-        fetch(`/products/${handle}.js`)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (product) {
-            // Basic info
-            popupImage.src = product.images[0];
-            popupTitle.textContent = product.title;
-            popupLink.href = product.url;
+          if (variantSelect) {
+            variantContainer.innerHTML = variantSelect.outerHTML;
+          } else {
+            variantContainer.innerHTML = '';
+          }
 
-            // Determine color & size option indexes (case-insensitive)
-            let colorIndex = -1;
-            let sizeIndex = -1;
-
-            product.options.forEach((opt, idx) => {
-              if (opt.toLowerCase().includes("color")) colorIndex = idx;
-              if (opt.toLowerCase().includes("size")) sizeIndex = idx;
-            });
-
-            // Collect unique color and size values
-            let colorOptions = new Set();
-            let sizeOptions = new Set();
-
-            product.variants.forEach(function (variant) {
-              if (colorIndex >= 0 && variant.options[colorIndex]) {
-                colorOptions.add(variant.options[colorIndex]);
-              }
-              if (sizeIndex >= 0 && variant.options[sizeIndex]) {
-                sizeOptions.add(variant.options[sizeIndex]);
-              }
-            });
-
-            // Build color HTML
-            let colorHTML = '';
-            if (colorOptions.size > 0) {
-              colorHTML += '<div><strong>Select Color:</strong>';
-              colorHTML += '<div style="display:flex;gap:10px;margin-top:5px;margin-bottom:10px;">';
-
-              colorOptions.forEach(function (color) {
-                const safeColor = color.toLowerCase().replace(/\s/g, "");
-                colorHTML += `
-                  <div title="${color}" style="
-                    width:30px;
-                    height:30px;
-                    border:2px solid #ccc;
-                    background:${safeColor};
-                    border-radius:50%;
-                    cursor:pointer;
-                  "></div>
-                `;
-              });
-
-              colorHTML += '</div></div>';
-            }
-
-            // Build size HTML
-            let sizeHTML = '';
-            if (sizeOptions.size > 0) {
-              sizeHTML += '<label for="variant-select">Select Size:</label>';
-              sizeHTML += '<select id="variant-select" style="width:100%;padding:6px;margin-top:5px;">';
-              sizeOptions.forEach(function (size) {
-                sizeHTML += `<option>${size}</option>`;
-              });
-              sizeHTML += '</select>';
-            }
-
-            // Inject HTML into popup
-            popupVariants.innerHTML = colorHTML + sizeHTML;
-            overlay.style.display = "flex";
-          })
-          .catch(function (error) {
-            console.error("Product fetch error:", error);
-          });
+          overlay.style.display = 'flex';
+        }
       });
     });
 
-    // Close popup logic
-    closeBtn.addEventListener("click", function () {
-      overlay.style.display = "none";
+    closeBtn.addEventListener('click', function () {
+      overlay.style.display = 'none';
     });
 
-    overlay.addEventListener("click", function (e) {
+    overlay.addEventListener('click', function (e) {
       if (e.target === overlay) {
-        overlay.style.display = "none";
+        overlay.style.display = 'none';
       }
     });
   });
 </script>
-
-
 
 {% schema %}
 {
