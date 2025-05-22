@@ -59,13 +59,6 @@
     position: relative;
   }
 
-  .popup-content img {
-    width: 100%;
-    height: 350px;
-    object-fit: cover;
-    margin-bottom: 15px;
-  }
-
   .popup-close {
     position: absolute;
     top: 10px;
@@ -74,95 +67,69 @@
     cursor: pointer;
     color: black;
   }
-
-  .popup-title {
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
-
-  .popup-button {
-    background: black;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    display: inline-block;
-    border-radius: 5px;
-    margin-top: 15px;
-  }
 </style>
 
 <div class="product-grid">
   {% for product in collections.all.products %}
     <div class="product-card" data-handle="{{ product.handle }}">
-      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+      <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
       <!-- Hidden Popup Data -->
       <div class="popup-data" style="display:none;">
-        <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-        <div class="title">{{ product.title }}</div>
-        <div class="variants">
-          <label for="variant-select-{{ forloop.index }}">Select Variant:</label>
-          <select id="variant-select-{{ forloop.index }}">
-            {% for variant in product.variants %}
-              <option>{{ variant.title }}</option>
-            {% endfor %}
-          </select>
+        <div class="popup-inner">
+          <span class="popup-close">&times;</span>
+          <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}" style="width:100%; height:350px; object-fit:cover; margin-bottom:15px;">
+          <div class="popup-title" style="font-size:22px; margin-bottom:10px;">{{ product.title }}</div>
+          <div class="variants">
+            <label>Select Variant:</label>
+            <select>
+              {% for variant in product.variants %}
+                <option>{{ variant.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <a class="popup-button" href="{{ product.url }}" style="background:black; color:white; padding:10px 20px; text-decoration:none; display:inline-block; border-radius:5px; margin-top:15px;">Shop Now</a>
         </div>
-        <a class="link" href="{{ product.url }}">Shop Now</a>
       </div>
     </div>
   {% endfor %}
 </div>
 
-
-<!-- Popup -->
+<!-- Central Popup -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup-content" id="popupContent">
-    <span class="popup-close" id="popupClose">&times;</span>
-    <img width="" height="" id="popupImage" src="" alt="">
-    <div class="popup-title" id="popupTitle"></div>
-    <div id="popupVariants"></div>
-    <a id="popupLink" class="popup-button" href="#">Shop Now</a>
+    <!-- Dynamic content will be injected here -->
   </div>
 </div>
 
 <script>
- document.addEventListener('DOMContentLoaded', function () {
-  const overlay = document.getElementById('popupOverlay');
-  const popupImage = document.getElementById('popupImage');
-  const popupTitle = document.getElementById('popupTitle');
-  const popupVariants = document.getElementById('popupVariants');
-  const popupLink = document.getElementById('popupLink');
-  const closeBtn = document.getElementById('popupClose');
+  document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('popupOverlay');
+    const popupContent = document.getElementById('popupContent');
 
-  const plusIcons = document.querySelectorAll('.plus-icon');
+    document.querySelectorAll('.plus-icon').forEach(icon => {
+      icon.addEventListener('click', function () {
+        const card = this.closest('.product-card');
+        const popupData = card.querySelector('.popup-data .popup-inner');
+        popupContent.innerHTML = popupData.outerHTML; // inject content
 
-  plusIcons.forEach(function (icon) {
-    icon.addEventListener('click', function () {
-      const productCard = icon.closest('.product-card');
-      const popupData = productCard.querySelector('.popup-data');
+        overlay.style.display = 'flex';
 
-      // Get content from hidden block
-      popupImage.src = popupData.querySelector('img').src;
-      popupTitle.textContent = popupData.querySelector('.title').textContent;
-      popupVariants.innerHTML = popupData.querySelector('.variants').innerHTML;
-      popupLink.href = popupData.querySelector('.link').href;
+        // Bind close button inside injected content
+        popupContent.querySelector('.popup-close').addEventListener('click', function () {
+          overlay.style.display = 'none';
+        });
+      });
+    });
 
-      overlay.style.display = 'flex';
+    // Click outside popup to close
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) {
+        overlay.style.display = 'none';
+      }
     });
   });
-
-  closeBtn.addEventListener('click', function () {
-    overlay.style.display = 'none';
-  });
-
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) {
-      overlay.style.display = 'none';
-    }
-  });
-});
 </script>
 
 {% schema %}
