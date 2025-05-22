@@ -50,6 +50,7 @@
     width: 25px;
     height: 18px;
     cursor: pointer;
+    padding: 10px;
   }
 
   .hamburger span {
@@ -88,7 +89,7 @@
     <div class="wrapper">
       <div class="logo">
         {% if section.settings.logo != blank %}
-          <img width="" height="" src="{{ section.settings.logo | image_url }}" alt="Logo">
+          <img src="{{ section.settings.logo | image_url }}" alt="Logo" width="130" height="50" />
         {% endif %}
       </div>
 
@@ -97,7 +98,7 @@
         <a href="{{ section.settings.button_link }}">{{ section.settings.button_text }}</a>
       </div>
 
-      <div class="hamburger" id="hamburger">
+      <div class="hamburger" id="hamburger" role="button" aria-label="Toggle menu" aria-expanded="false" tabindex="0">
         <span></span>
         <span></span>
         <span></span>
@@ -118,6 +119,15 @@
 
     hamburger.addEventListener('click', function () {
       mobileMenu.classList.toggle('show');
+      hamburger.setAttribute('aria-expanded', mobileMenu.classList.contains('show'));
+    });
+
+    // Optional: allow toggle by keyboard (Enter/Space)
+    hamburger.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        hamburger.click();
+      }
     });
   });
 </script>
