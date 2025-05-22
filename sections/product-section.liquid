@@ -104,8 +104,8 @@
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup-content" id="popupContent">
     <span class="popup-close" id="popupClose">&times;</span>
-    <img width="" height="" id="popupImage" src="" alt="">
-    <div class="popup-title" id="popupTitle"></div>
+      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+    <div class="popup-title">{{ product.title }}</div>
     <div id="popupVariants"></div>
     <a id="popupLink" class="popup-button" href="#">Shop Now</a>
   </div>
