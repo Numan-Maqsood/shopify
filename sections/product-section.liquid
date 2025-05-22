@@ -129,7 +129,9 @@
             <label class="variant-label">Choose Color:</label>
             <div class="color-options">
               {% for color in color_options.values %}
-                <div class="color-box" data-color="{{ color }}" title="{{ color }}" style="background-color: {{ color | handleize }}"></div>
+<div class="color-box" data-color="{{ color }}" title="{{ color }}" style="border-color: {{ color }};">
+  <span class="color-label">{{ color }}</span>
+</div>
               {% endfor %}
             </div>
           {% endif %}
