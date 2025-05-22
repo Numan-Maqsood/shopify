@@ -105,14 +105,14 @@
 <div class="product-grid">
   {% for product in collections.all.products %}
     <div class="product-card">
-      <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
       <!-- Popup per product -->
       <div class="popup-overlay">
         <div class="popup-content">
           <span class="popup-close">&times;</span>
-          <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+          <img width="" height="350" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
           <div class="popup-title">{{ product.title }}</div>
 
           {% assign colors = '' %}
