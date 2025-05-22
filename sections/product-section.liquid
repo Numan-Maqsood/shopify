@@ -100,6 +100,12 @@
     border-radius: 5px;
     margin-top: 20px;
   }
+
+  .popup-price {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
 </style>
 
 <div class="product-grid">
@@ -108,52 +114,31 @@
       <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
-      <!-- Popup per product -->
+      <!-- Popup -->
       <div class="popup-overlay">
         <div class="popup-content">
           <span class="popup-close">&times;</span>
           <img width="" height="350" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
           <div class="popup-title">{{ product.title }}</div>
+          <div class="popup-price">{{ product.price | money }}</div>
 
-          {% assign colors = '' %}
-          {% assign sizes = '' %}
+          {% assign color_options = product.options_by_name['Color'] %}
+          {% assign size_options = product.options_by_name['Size'] %}
 
-          {% for variant in product.variants %}
-            {% assign option1 = variant.option1 | downcase %}
-            {% assign option2 = variant.option2 | downcase %}
-            {% if option1 contains 'color' or variant.title contains 'color' %}
-              {% unless colors contains variant.option1 %}
-                {% assign colors = colors | append: variant.option1 | append: ',' %}
-              {% endunless %}
-            {% endif %}
-            {% if option2 contains 'size' or variant.title contains 'size' %}
-              {% unless sizes contains variant.option2 %}
-                {% assign sizes = sizes | append: variant.option2 | append: ',' %}
-              {% endunless %}
-            {% endif %}
-          {% endfor %}
-
-          {% assign colorArray = colors | split: ',' %}
-          {% assign sizeArray = sizes | split: ',' %}
-
-          {% if colorArray.size > 1 %}
+          {% if color_options %}
             <label class="variant-label">Choose Color:</label>
             <div class="color-options">
-              {% for color in colorArray %}
-                {% if color != '' %}
-                  <div class="color-box" data-color="{{ color }}" style="background-color: {{ color | handleize }}"></div>
-                {% endif %}
+              {% for color in color_options.values %}
+                <div class="color-box" data-color="{{ color }}" title="{{ color }}" style="background-color: {{ color | handleize }}"></div>
               {% endfor %}
             </div>
           {% endif %}
 
-          {% if sizeArray.size > 1 %}
-            <label class="variant-label" style="margin-top:20px;">Choose Size:</label>
-            <select class="size-dropdown" style="margin-top: 5px;">
-              {% for size in sizeArray %}
-                {% if size != '' %}
-                  <option value="{{ size }}">{{ size }}</option>
-                {% endif %}
+          {% if size_options %}
+            <label class="variant-label" style="margin-top: 20px;">Choose Size:</label>
+            <select class="size-dropdown">
+              {% for size in size_options.values %}
+                <option value="{{ size }}">{{ size }}</option>
               {% endfor %}
             </select>
           {% endif %}
@@ -167,9 +152,7 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const plusIcons = document.querySelectorAll('.plus-icon');
-
-    plusIcons.forEach(icon => {
+    document.querySelectorAll('.plus-icon').forEach(icon => {
       icon.addEventListener('click', () => {
         const card = icon.closest('.product-card');
         const popup = card.querySelector('.popup-overlay');
@@ -185,8 +168,7 @@
       });
     });
 
-    const closeBtns = document.querySelectorAll('.popup-close');
-    closeBtns.forEach(btn => {
+    document.querySelectorAll('.popup-close').forEach(btn => {
       btn.addEventListener('click', () => {
         const popup = btn.closest('.popup-overlay');
         popup.style.display = 'none';
