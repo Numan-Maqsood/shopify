@@ -89,7 +89,7 @@
     <div class="wrapper">
       <div class="logo">
         {% if section.settings.logo != blank %}
-          <img src="{{ section.settings.logo | image_url }}" alt="Logo" width="130" height="50" />
+          <img src="{{ section.settings.logo | img_url: 'master' }}" alt="Logo" width="130" height="50" />
         {% endif %}
       </div>
 
