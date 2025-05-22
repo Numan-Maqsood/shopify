@@ -93,80 +93,76 @@
 
 <div class="product-grid">
   {% for product in collections.all.products %}
-    <div class="product-card">
+    <div class="product-card" data-handle="{{ product.handle }}">
       <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-      <div class="plus-icon" data-handle="{{ product.handle }}">+</div>
+      <div class="plus-icon">+</div>
+
+      <!-- Hidden Popup Data -->
+      <div class="popup-data" style="display:none;">
+        <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+        <div class="title">{{ product.title }}</div>
+        <div class="variants">
+          <label for="variant-select-{{ forloop.index }}">Select Variant:</label>
+          <select id="variant-select-{{ forloop.index }}">
+            {% for variant in product.variants %}
+              <option>{{ variant.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <a class="link" href="{{ product.url }}">Shop Now</a>
+      </div>
     </div>
   {% endfor %}
+</div>
 
-  <div>
-    <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-    <h2>{{ product.title }}</h2>
-    <a href="#">Shop Now</a>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-content" id="popupContent">
+    <span class="popup-close" id="popupClose">&times;</span>
+    <img width="" height="" id="popupImage" src="" alt="">
+    <div class="popup-title" id="popupTitle"></div>
+    <div id="popupVariants"></div>
+    <a id="popupLink" class="popup-button" href="#">Shop Now</a>
   </div>
 </div>
 
-<!-- Popup -->
-{% comment %}
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup-content" id="popupContent">
-      <span class="popup-close" id="popupClose">&times;</span>
-      <img width="" height="" id="popupImage" src="" alt="">
-      <div class="popup-title" id="popupTitle"></div>
-      <div id="popupVariants"></div>
-      <a id="popupLink" class="popup-button" href="#">Shop Now</a>
-    </div>
-  </div>
-{% endcomment %}
-
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const overlay = document.getElementById('popupOverlay');
-    const closeBtn = document.getElementById('popupClose');
-    const popupImage = document.getElementById('popupImage');
-    const popupTitle = document.getElementById('popupTitle');
-    const popupVariants = document.getElementById('popupVariants');
-    const popupLink = document.getElementById('popupLink');
+ document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('popupOverlay');
+  const popupImage = document.getElementById('popupImage');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupVariants = document.getElementById('popupVariants');
+  const popupLink = document.getElementById('popupLink');
+  const closeBtn = document.getElementById('popupClose');
 
-    const plusIcons = document.querySelectorAll('.plus-icon');
+  const plusIcons = document.querySelectorAll('.plus-icon');
 
-    plusIcons.forEach(function (icon) {
-      icon.addEventListener('click', function () {
-        const handle = icon.getAttribute('data-handle');
+  plusIcons.forEach(function (icon) {
+    icon.addEventListener('click', function () {
+      const productCard = icon.closest('.product-card');
+      const popupData = productCard.querySelector('.popup-data');
 
-        fetch(`/products/${handle}.js`)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (product) {
-            popupImage.src = product.images[0];
-            popupTitle.textContent = product.title;
-            popupLink.href = product.url;
+      // Get content from hidden block
+      popupImage.src = popupData.querySelector('img').src;
+      popupTitle.textContent = popupData.querySelector('.title').textContent;
+      popupVariants.innerHTML = popupData.querySelector('.variants').innerHTML;
+      popupLink.href = popupData.querySelector('.link').href;
 
-            let variantHTML = '<label for="variant-select">Select Variant:</label>';
-            variantHTML += '<select id="variant-select">';
-            product.variants.forEach(function (variant) {
-              variantHTML += '<option>' + variant.title + '</option>';
-            });
-            variantHTML += '</select>';
-
-            popupVariants.innerHTML = variantHTML;
-
-            overlay.style.display = 'flex';
-          });
-      });
-    });
-
-    closeBtn.addEventListener('click', function () {
-      overlay.style.display = 'none';
-    });
-
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) {
-        overlay.style.display = 'none';
-      }
+      overlay.style.display = 'flex';
     });
   });
+
+  closeBtn.addEventListener('click', function () {
+    overlay.style.display = 'none';
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) {
+      overlay.style.display = 'none';
+    }
+  });
+});
 </script>
 
 {% schema %}
