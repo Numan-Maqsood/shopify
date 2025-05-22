@@ -23,9 +23,20 @@
       "type": "product-section",
       "name": "Product Grid",
       "settings": {}
+    },
+    "custom_header_Lnn6nJ": {
+      "type": "custom-header",
+      "name": "Custom Header",
+      "settings": {
+        "logo": "shopify://shop_images/community.png",
+        "tagline": "Find The Ideal gifts for your loved Ones",
+        "button_text": "CHOOSE GIFT",
+        "button_link": ""
+      }
     }
   },
   "order": [
+    "custom_header_Lnn6nJ",
     "banner_bAM8BM",
     "product_section_xAUNV9"
   ]
