@@ -36,27 +36,24 @@
     background: #333;
   }
 
-  /* Popup */
   .popup-overlay {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 999;
+    z-index: 9999;
     justify-content: center;
     align-items: center;
   }
-
   .popup-content {
     background: white;
     padding: 30px;
+    border-radius: 10px;
     max-width: 500px;
     width: 90%;
-    border-radius: 10px;
-    position: relative;
   }
 
   .popup-close {
@@ -71,63 +68,60 @@
 
 <div class="product-grid">
   {% for product in collections.all.products %}
-    <div class="product-card" data-handle="{{ product.handle }}">
-      <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+    <div class="product-card">
+      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
-      <!-- Hidden Popup Data -->
-      <div class="popup-data" style="display:none;">
-        <div class="popup-inner">
-          <span class="popup-close">&times;</span>
-          <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}" style="width:100%; height:350px; object-fit:cover; margin-bottom:15px;">
-          <div class="popup-title" style="font-size:22px; margin-bottom:10px;">{{ product.title }}</div>
-          <div class="variants">
-            <label>Select Variant:</label>
-            <select>
-              {% for variant in product.variants %}
-                <option>{{ variant.title }}</option>
-              {% endfor %}
-            </select>
+      <!-- Inline Popup inside product-card -->
+      <div class="popup-overlay">
+        <div class="popup-content">
+          <div class="popup-inner">
+            <span class="popup-close">&times;</span>
+            <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+            <div class="popup-title">{{ product.title }}</div>
+            <div class="variants">
+              <label>Select Variant:</label>
+              <select>
+                {% for variant in product.variants %}
+                  <option>{{ variant.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <a class="popup-button" href="{{ product.url }}">Shop Now</a>
           </div>
-          <a class="popup-button" href="{{ product.url }}" style="background:black; color:white; padding:10px 20px; text-decoration:none; display:inline-block; border-radius:5px; margin-top:15px;">Shop Now</a>
         </div>
       </div>
     </div>
   {% endfor %}
 </div>
 
-<!-- Central Popup -->
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup-content" id="popupContent">
-    <!-- Dynamic content will be injected here -->
-  </div>
-</div>
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const overlay = document.getElementById('popupOverlay');
-    const popupContent = document.getElementById('popupContent');
+    const plusIcons = document.querySelectorAll('.plus-icon');
+    const closeButtons = document.querySelectorAll('.popup-close');
 
-    document.querySelectorAll('.plus-icon').forEach(icon => {
-      icon.addEventListener('click', function () {
-        const card = this.closest('.product-card');
-        const popupData = card.querySelector('.popup-data .popup-inner');
-        popupContent.innerHTML = popupData.outerHTML; // inject content
-
-        overlay.style.display = 'flex';
-
-        // Bind close button inside injected content
-        popupContent.querySelector('.popup-close').addEventListener('click', function () {
-          overlay.style.display = 'none';
-        });
+    plusIcons.forEach((icon) => {
+      icon.addEventListener('click', () => {
+        const productCard = icon.closest('.product-card');
+        const popup = productCard.querySelector('.popup-overlay');
+        popup.style.display = 'flex';
       });
     });
 
-    // Click outside popup to close
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) {
-        overlay.style.display = 'none';
-      }
+    closeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const popup = btn.closest('.popup-overlay');
+        popup.style.display = 'none';
+      });
+    });
+
+    // Optional: close on overlay click
+    document.querySelectorAll('.popup-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+          overlay.style.display = 'none';
+        }
+      });
     });
   });
 </script>
