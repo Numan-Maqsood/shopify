@@ -48,12 +48,14 @@
     justify-content: center;
     align-items: center;
   }
+
   .popup-content {
     background: white;
     padding: 30px;
     border-radius: 10px;
     max-width: 500px;
     width: 90%;
+    position: relative;
   }
 
   .popup-close {
@@ -64,31 +66,99 @@
     cursor: pointer;
     color: black;
   }
+
+  .variant-label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+  }
+
+  .color-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .color-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .color-box.selected {
+    border-color: black;
+  }
+
+  .popup-button {
+    background: black;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
 </style>
 
 <div class="product-grid">
   {% for product in collections.all.products %}
     <div class="product-card">
-      <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+      <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
       <div class="plus-icon">+</div>
 
-      <!-- Inline Popup inside product-card -->
+      <!-- Popup per product -->
       <div class="popup-overlay">
         <div class="popup-content">
-          <div class="popup-inner">
-            <span class="popup-close">&times;</span>
-            <img width="" height="" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
-            <div class="popup-title">{{ product.title }}</div>
-            <div class="variants">
-              <label>Select Variant:</label>
-              <select>
-                {% for variant in product.variants %}
-                  <option>{{ variant.title }}</option>
-                {% endfor %}
-              </select>
+          <span class="popup-close">&times;</span>
+          <img src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+          <div class="popup-title">{{ product.title }}</div>
+
+          {% assign colors = '' %}
+          {% assign sizes = '' %}
+
+          {% for variant in product.variants %}
+            {% assign option1 = variant.option1 | downcase %}
+            {% assign option2 = variant.option2 | downcase %}
+            {% if option1 contains 'color' or variant.title contains 'color' %}
+              {% unless colors contains variant.option1 %}
+                {% assign colors = colors | append: variant.option1 | append: ',' %}
+              {% endunless %}
+            {% endif %}
+            {% if option2 contains 'size' or variant.title contains 'size' %}
+              {% unless sizes contains variant.option2 %}
+                {% assign sizes = sizes | append: variant.option2 | append: ',' %}
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+
+          {% assign colorArray = colors | split: ',' %}
+          {% assign sizeArray = sizes | split: ',' %}
+
+          {% if colorArray.size > 1 %}
+            <label class="variant-label">Choose Color:</label>
+            <div class="color-options">
+              {% for color in colorArray %}
+                {% if color != '' %}
+                  <div class="color-box" data-color="{{ color }}" style="background-color: {{ color | handleize }}"></div>
+                {% endif %}
+              {% endfor %}
             </div>
-            <a class="popup-button" href="{{ product.url }}">Shop Now</a>
-          </div>
+          {% endif %}
+
+          {% if sizeArray.size > 1 %}
+            <label class="variant-label" style="margin-top:20px;">Choose Size:</label>
+            <select class="size-dropdown" style="margin-top: 5px;">
+              {% for size in sizeArray %}
+                {% if size != '' %}
+                  <option value="{{ size }}">{{ size }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          {% endif %}
+
+          <a class="popup-button" href="{{ product.url }}">Shop Now</a>
         </div>
       </div>
     </div>
@@ -98,25 +168,32 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const plusIcons = document.querySelectorAll('.plus-icon');
-    const closeButtons = document.querySelectorAll('.popup-close');
 
-    plusIcons.forEach((icon) => {
+    plusIcons.forEach(icon => {
       icon.addEventListener('click', () => {
-        const productCard = icon.closest('.product-card');
-        const popup = productCard.querySelector('.popup-overlay');
+        const card = icon.closest('.product-card');
+        const popup = card.querySelector('.popup-overlay');
         popup.style.display = 'flex';
+
+        const colorBoxes = popup.querySelectorAll('.color-box');
+        colorBoxes.forEach(box => {
+          box.addEventListener('click', () => {
+            colorBoxes.forEach(b => b.classList.remove('selected'));
+            box.classList.add('selected');
+          });
+        });
       });
     });
 
-    closeButtons.forEach((btn) => {
+    const closeBtns = document.querySelectorAll('.popup-close');
+    closeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const popup = btn.closest('.popup-overlay');
         popup.style.display = 'none';
       });
     });
 
-    // Optional: close on overlay click
-    document.querySelectorAll('.popup-overlay').forEach((overlay) => {
+    document.querySelectorAll('.popup-overlay').forEach(overlay => {
       overlay.addEventListener('click', function (e) {
         if (e.target === overlay) {
           overlay.style.display = 'none';
